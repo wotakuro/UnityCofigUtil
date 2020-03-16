@@ -1,0 +1,28 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:Label text="Configure">
+        <Style src="ConfigWindow.uss" />
+    </ui:Label>
+    <ui:VisualElement style="margin-left: 10px;">
+        <Style src="ConfigWindow.uss" />
+        <ui:VisualElement name="ConfigType" style="max-width: 350px;" />
+    </ui:VisualElement>
+    <ui:VisualElement style="flex-direction: row; margin-left: 10px;">
+        <ui:VisualElement label="Preset" value="Center" name="Preset" style="width: 250px;" />
+        <ui:Button text="Load" name="PreseBtn" style="flex-direction: column;" />
+    </ui:VisualElement>
+    <ui:Label text="ItemValue">
+        <Style src="ConfigWindow.uss" />
+    </ui:Label>
+    <ui:ScrollView name="ItemValue">
+        <Style src="ConfigWindow.uss" />
+    </ui:ScrollView>
+    <ui:VisualElement style="height: 40px;">
+        <Style src="ConfigWindow.uss" />
+    </ui:VisualElement>
+    <ui:Button text="Save" name="SaveBtn" style="position: absolute; bottom: 3.333333px; height: 19px; right: 114.6667px; width: 52.00001px;">
+        <Style src="ConfigWindow.uss" />
+    </ui:Button>
+    <ui:Button text="Save as Preset" name="SaveAsPresetBtn" style="position: absolute; bottom: 4px; height: 19px; right: 10.66667px; width: 97.33334px;">
+        <Style src="ConfigWindow.uss" />
+    </ui:Button>
+</ui:UXML>
