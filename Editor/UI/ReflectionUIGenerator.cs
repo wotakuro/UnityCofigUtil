@@ -99,8 +99,21 @@ namespace UTJ.ConfigUtil
                 RegistEvent(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
-            else
+            else if (type.IsArray)
             {
+                Debug.LogError("not yet implements array " + type +" " +fieldInfo.Name);
+            }
+            else if (typeof(System.Collections.IList).IsAssignableFrom(type ) )
+            {
+                Debug.LogError("not yet implements List  " + type + " " + fieldInfo.Name);
+            }
+            else if (!type.IsValueType)
+            {
+                Foldout foldout = new Foldout();
+                foldout.text = fieldInfo.Name;
+                var generator = new ReflectionUIGenerator(this.onDirty);
+                generator.Generate( fieldInfo.GetValue(this.target), foldout, this.level + 1);
+                visualElement.Add(foldout);
             }
         }
         private void SetValue<T>( BaseField<T> uiField,FieldInfo fieldInfo)
