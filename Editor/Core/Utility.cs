@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 namespace UTJ.ConfigUtil
 {
@@ -25,19 +26,51 @@ namespace UTJ.ConfigUtil
                 var types = asm.GetTypes();
                 foreach (var type in types)
                 {
-                    var customAttr = GetConfigAttribute(type);
+                    var customAttr = ConfigLoader.GetConfigAttribute(type);
                     if(customAttr == null) { continue; }
                     list.Add(new TypeAndAttr(type, customAttr));
                 }
             }
             return list;
         }
-        internal static ConfigUtilityAttribute GetConfigAttribute(System.Type type)
+
+        public static void SaveDataToStreamingAssets(object obj)
         {
-            var attrs = type.GetCustomAttributes(typeof(ConfigUtilityAttribute), false);
-            if (attrs == null || attrs.Length <= 0) { return null; }
-            var customAttr = attrs[0] as ConfigUtilityAttribute;
-            return customAttr;
+            System.Type type = obj.GetType();
+            var customAttr = ConfigLoader.GetConfigAttribute(type);
+            if( customAttr == null) { return; }
+            string path = ConfigLoader.GetConfigDataPath(customAttr);
+            if( System.IO.File.Exists(path))
+            {
+                bool res = EditorUtility.DisplayDialog("Overwrite?", "File is already exist.Overwrite?", "ok", "cancel");
+                if(!res) { return; }
+            }
+            string json = JsonUtility.ToJson(obj);
+            System.IO.File.WriteAllText(path, json);
+        }
+
+        public static void SaveToPresetData(object obj,string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                EditorUtility.DisplayDialog("No preset name","Please input preset name","ok");
+                return;
+            }
+            if (PresetData.IsPresetExists(name, obj.GetType()))
+            {
+                bool res = EditorUtility.DisplayDialog("Overwrite?","Preset " + name + " is already exist.overwrite?","ok","cancel");
+            }
+            PresetData.SavePreset(name,obj);
+        }
+
+        public static bool ApplyPreset<T>(string preset)
+        {
+            if( !PresetData.IsPresetExists(preset,typeof(T)))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

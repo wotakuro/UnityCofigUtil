@@ -10,8 +10,15 @@ namespace UTJ.ConfigUtil
 {
     public class ReflectionUIGenerator
     {
-        object target;
-        int level;
+        private System.Action onDirty;
+        private object target;
+        private int level;
+
+        public ReflectionUIGenerator(System.Action dirtyFunc)
+        {
+            this.onDirty = dirtyFunc;
+        }
+
         public void Generate(object t,VisualElement visualElement,int l)
         {
             if( this.level >= 6) { return; }
@@ -34,48 +41,56 @@ namespace UTJ.ConfigUtil
             {
                 var uiField = new LongField(name);
                 RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
             else if (type == typeof(int))
             {
                 var uiField = new IntegerField(name);
                 RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
             else if (type == typeof(float))
             {
                 var uiField = new FloatField(name);
                 RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
             else if (type == typeof(string))
             {
                 var uiField = new TextField(name);
                 RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
             else if (type == typeof(Vector2))
             {
                 var uiField = new Vector2Field(name);
                 RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
             else if (type == typeof(Vector3))
             {
                 var uiField = new Vector3Field(name);
                 RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
             else if (type == typeof(Vector4))
             {
                 var uiField = new Vector4Field(name);
                 RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
             else if (type == typeof(Color))
             {
                 var uiField = new ColorField(name);
                 RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
                 visualElement.Add(uiField);
             }
             else if (type.IsEnum)
@@ -88,11 +103,17 @@ namespace UTJ.ConfigUtil
             {
             }
         }
+        private void SetValue<T>( BaseField<T> uiField,FieldInfo fieldInfo)
+        {
+            uiField.value = (T)fieldInfo.GetValue(this.target);
+        }
+
         private void RegistEvent<T>(INotifyValueChanged<T> notify,FieldInfo fieldInfo)
         {
             notify.RegisterValueChangedCallback((val) =>
            {
                fieldInfo.SetValue(this.target, val.newValue);
+               this.onDirty?.Invoke();
            });
         }
 

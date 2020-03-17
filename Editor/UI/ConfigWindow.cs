@@ -19,6 +19,7 @@ namespace UTJ.ConfigUtil
         private PopupField<PresetData> presetPopup;
         private List<PresetData> presetList = new List<PresetData>();
         private PresetData currentPreset;
+        private bool isDirty = false;
         
 
 
@@ -37,12 +38,49 @@ namespace UTJ.ConfigUtil
             this.InitConfigType();
 
 
-            rootVisualElement.Q<Button>("PresetBtn");
-            rootVisualElement.Q<Button>("SaveBtn").clickable.clicked += ()=> {
-            };
-            rootVisualElement.Q<Button>("SaveAsPresetBtn");
+            rootVisualElement.Q<Button>("PresetBtn").clickable.clicked += PresetBtn;
+            rootVisualElement.Q<Button>("SaveBtn").clickable.clicked += SaveBtn;
+            rootVisualElement.Q<Button>("SaveAsPresetBtn").clickable.clicked += SaveAsPresetBtn;
         }
-        
+
+
+        private void SaveAsPresetBtn()
+        {
+            var field = this.rootVisualElement.Q<TextField>("SavePresetName");
+            string name = field.value;
+            
+            Utility.SaveToPresetData(this.currentValue,name);
+            this.UpdatePresetField();
+
+            this.SelectPresetField(name);
+        }
+
+        private void SaveBtn()
+        {
+            Utility.SaveDataToStreamingAssets(this.currentValue);
+            this.isDirty = false;
+        }
+
+        private void PresetBtn()
+        {
+            if(currentPreset == null)
+            {
+                return;
+            }
+            bool res = !isDirty;
+            if (!res)
+            {
+                res = EditorUtility.DisplayDialog("Discard Change", "Discard any Chanages?", "ok", "cancel");
+            }
+            if(!res)
+            {
+                return;
+            }
+            string name = currentPreset.name;
+            ApplyCurrentValue( this.currentPreset.data );
+            SelectPresetField(name);
+            this.isDirty = false;
+        }
 
         private void InitConfigType()
         {
@@ -54,7 +92,7 @@ namespace UTJ.ConfigUtil
             currentTypeInfo = typelist[0];
             popup.RegisterValueChangedCallback((value) => {
                 if(currentTypeInfo == value.newValue) { return; }
-                bool res = false;
+                bool res = !isDirty;
                 if (!res)
                 {
                     res = EditorUtility.DisplayDialog("Discard Change", "Discard any Chanages?", "ok", "cancel");
@@ -75,20 +113,29 @@ namespace UTJ.ConfigUtil
         private void ApplyToTypeInfo(Utility.TypeAndAttr info)
         {
             this.currentTypeInfo = info;
-            
-            bool loadResult = ConfigLoader.LoadDataFromStreamingAssets(out currentValue,info.type);
+            object obj = null;
+            bool loadResult = ConfigLoader.LoadDataFromStreamingAssets(out obj, info.type);
+
             if (!loadResult)
             {
-                this.currentValue = System.Activator.CreateInstance(info.type);
+                obj = System.Activator.CreateInstance(info.type);
             }
-
-            ReflectionUIGenerator generator = new ReflectionUIGenerator();
-
+            ApplyCurrentValue(obj);
+        }
+        private void ApplyCurrentValue(object val) {
+            this.currentValue = val;
+            ReflectionUIGenerator generator = new ReflectionUIGenerator(this.SetDataDirty);
             var scrollView = rootVisualElement.Q<ScrollView>("ItemValue");
             scrollView.Clear();
             generator.Generate(currentValue, scrollView,0);
 
             UpdatePresetField();
+            this.isDirty = false;
+        }
+
+        private void SetDataDirty()
+        {
+            this.isDirty = true;
         }
 
         private void UpdatePresetField()
@@ -99,10 +146,31 @@ namespace UTJ.ConfigUtil
 
             if (this.presetList.Count > 0) {
                 presetPopup = new PopupField<PresetData>(this.presetList, 0, PresetDataToString, PresetDataToString);
+                presetPopup.RegisterValueChangedCallback((val) =>
+                {
+                    this.currentPreset = val.newValue;
+                });
+
                 currentPreset = this.presetList[0];
                 presetParent.Add(presetPopup);
             }
         }
+
+        private void SelectPresetField(string name)
+        {
+            var presetParent = rootVisualElement.Q<VisualElement>("Preset");
+            var presetField = presetParent.Q<PopupField<PresetData>>();
+            if (presetField == null) { return; }
+            for (int i = 0; i < this.presetList.Count; ++i) { 
+                if ( presetList[i].name == name)
+                {
+                    presetField.index = i;
+                    break;
+                }
+            }
+
+        }
+        
         
 
         private static string PresetDataToString(PresetData data)
