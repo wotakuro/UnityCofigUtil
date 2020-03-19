@@ -1,8 +1,9 @@
 {
     "name": "UniConfigUtilEditor",
     "references": [
-        "GUID:b0617d987673df647b736d86dafe0bc3"
+        "UniConfigUtilRuntime"
     ],
+    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
@@ -11,7 +12,5 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
-    "noEngineReferences": false
+    "defineConstraints": []
 }

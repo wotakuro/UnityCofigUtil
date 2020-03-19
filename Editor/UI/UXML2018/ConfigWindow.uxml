@@ -1,0 +1,35 @@
+<ui:UXML xmlns:ui="UnityEngine.Experimental.UIElements" xmlns:uie="UnityEditor.Experimental.UIElements">
+    <ui:Label text="Configure">
+        <Style src="ConfigWindow.uss" />
+    </ui:Label>
+    <ui:VisualElement style="margin-left: 10px;min-height:20px;">
+        <Style src="ConfigWindow.uss" />
+        <ui:VisualElement name="ConfigType" style="max-width: 350px;" />
+    </ui:VisualElement>
+    <ui:Label text="Preset">
+        <Style src="ConfigWindow.uss" />
+    </ui:Label>
+    <ui:VisualElement style="flex-direction: row; margin-left: 10px;min-height:20px;">
+        <ui:VisualElement label="Preset" value="Center" name="Preset" style="width: 150px;" />
+        <ui:Button text="Load" name="PresetBtn" style="flex-direction: column;" />
+    </ui:VisualElement>
+    <ui:VisualElement style="flex-direction: row; margin-left: 10px;min-height:20px;">
+      <ui:TextField name="SavePresetName" style="width: 150px;">
+        <Style src="ConfigWindow.uss" />
+      </ui:TextField>
+      <ui:Button text="Save as Preset" name="SaveAsPresetBtn" style="width: 100px;">
+        <Style src="ConfigWindow.uss" />
+      </ui:Button>
+    </ui:VisualElement>
+
+
+  <ui:Label text="ItemValue">
+        <Style src="ConfigWindow.uss" />
+    </ui:Label>
+    <ui:ScrollView name="ItemValue" style="margin-left: 10px; margin-bottom: 30px">
+        <Style src="ConfigWindow.uss" />
+    </ui:ScrollView>
+    <ui:Button text="Save to StreamingAssets" name="SaveBtn" style="position: absolute; bottom: 5px; height: 19px; right: 10px; width: 177px;">
+        <Style src="ConfigWindow.uss" />
+    </ui:Button>
+</ui:UXML>

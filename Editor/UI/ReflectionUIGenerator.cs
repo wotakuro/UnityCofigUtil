@@ -3,8 +3,15 @@
 using System.Reflection;
 
 using UnityEngine;
+
+
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+#else
+using UnityEngine.Experimental.UIElements;
+using UnityEditor.Experimental.UIElements;
+#endif
 
 namespace UTJ.ConfigUtil
 {
@@ -39,65 +46,58 @@ namespace UTJ.ConfigUtil
 
             if( type == typeof(long))
             {
-                var uiField = new LongField(name);
+                var uiField = CreateFieldWithName<LongField>(name, visualElement);
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type == typeof(int))
             {
-                var uiField = new IntegerField(name);
+                var uiField = CreateFieldWithName<IntegerField>(name, visualElement);
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type == typeof(float))
             {
-                var uiField = new FloatField(name);
+                var uiField = CreateFieldWithName<FloatField>(name, visualElement);
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type == typeof(string))
             {
-                var uiField = new TextField(name);
+                var uiField = CreateFieldWithName<TextField>(name, visualElement);
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type == typeof(Vector2))
             {
-                var uiField = new Vector2Field(name);
+                var uiField = CreateFieldWithName<Vector2Field>(name, visualElement);
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type == typeof(Vector3))
             {
-                var uiField = new Vector3Field(name);
+                var uiField = CreateFieldWithName<Vector3Field>(name, visualElement);
+
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type == typeof(Vector4))
             {
-                var uiField = new Vector4Field(name);
+                var uiField = CreateFieldWithName<Vector4Field>(name, visualElement);
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type == typeof(Color))
             {
-                var uiField = new ColorField(name);
+                var uiField = CreateFieldWithName<ColorField>(name, visualElement);
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type.IsEnum)
             {
-                var uiField = new EnumField(name,(System.Enum) fieldInfo.GetValue(target) );
+                var uiField = CreateFieldWithName<EnumField>(name, visualElement);
+                uiField.Init((System.Enum)fieldInfo.GetValue(target) );
                 RegistEvent(uiField, fieldInfo);
-                visualElement.Add(uiField);
             }
             else if (type.IsArray)
             {
@@ -116,6 +116,93 @@ namespace UTJ.ConfigUtil
                 visualElement.Add(foldout);
             }
         }
+
+
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+#else
+        private static T CreateFieldWithName<T>(string name,VisualElement parent)
+            where T: BindableElement
+        {
+            BindableElement val = null;
+            System.Type t = typeof(T);
+            if (t == typeof(LongField))
+            {
+                val = new LongField(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+            else if (t == typeof(IntegerField))
+            {
+                val = new IntegerField(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+            else if (t == typeof(FloatField))
+            {
+                val = new FloatField(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+            else if (t == typeof(TextField))
+            {
+                val = new TextField(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+            else if (t == typeof(ColorField))
+            {
+                val = new ColorField(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+            else if (t == typeof(EnumField))
+            {
+                val = new EnumField(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+            else if (t == typeof(Vector2Field))
+            {
+                val = new Vector2Field(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+            else if (t == typeof(Vector3Field))
+            {
+                val = new Vector3Field(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+            else if (t == typeof(Vector4Field))
+            {
+                val = new Vector4Field(
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+                    name
+#endif
+                    );
+            }
+
+            return val as T;
+        }
+#endif
+
+
         private void SetValue<T>( BaseField<T> uiField,FieldInfo fieldInfo)
         {
             uiField.value = (T)fieldInfo.GetValue(this.target);
@@ -123,11 +210,19 @@ namespace UTJ.ConfigUtil
 
         private void RegistEvent<T>(INotifyValueChanged<T> notify,FieldInfo fieldInfo)
         {
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
             notify.RegisterValueChangedCallback((val) =>
            {
                fieldInfo.SetValue(this.target, val.newValue);
                this.onDirty?.Invoke();
            });
+#else
+            notify.OnValueChanged((val) =>
+            {
+                fieldInfo.SetValue(this.target, val.newValue);
+                this.onDirty?.Invoke();
+            });
+#endif
         }
 
         public List<FieldInfo> GetFields()

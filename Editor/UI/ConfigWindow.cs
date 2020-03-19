@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
 using UnityEngine.UIElements;
 using UnityEditor.UIElements;
+#else
+using UnityEngine.Experimental.UIElements;
+using UnityEditor.Experimental.UIElements;
+#endif
 
 namespace UTJ.ConfigUtil
 {
@@ -20,7 +25,30 @@ namespace UTJ.ConfigUtil
         private List<PresetData> presetList = new List<PresetData>();
         private PresetData currentPreset;
         private bool isDirty = false;
-        
+
+#if !UNITY_2019_1_OR_NEWER && !UNITY_2019_OR_NEWER
+        private VisualElement rootVisualElement
+        {
+            get
+            {
+                return this.GetRootVisualContainer();
+            }
+        }
+
+        private float lastHeight = -1.0f;
+        private void SetupScrollViewHeight()
+        {
+            if (lastHeight == this.position.height)
+            {
+                return;
+            }
+        }
+        private void Update()
+        {
+            SetupScrollViewHeight();
+        }
+#endif
+
 
 
         [MenuItem("Tools/Config")]
@@ -32,12 +60,20 @@ namespace UTJ.ConfigUtil
         private void OnEnable()
         {
             this.typelist = Utility.GetTypeList(true);
+
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
             string treeAssetPath = "Packages/com.utj.uniconfigutil/Editor/UI/UXML/ConfigWindow.uxml";
             var treeAssset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(treeAssetPath);
             treeAssset.CloneTree(this.rootVisualElement);
+#else
+            string treeAssetPath = "Packages/com.utj.uniconfigutil/Editor/UI/UXML2018/ConfigWindow.uxml";
+
+            var treeAssset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(treeAssetPath);
+            this.rootVisualElement.Add(treeAssset.CloneTree(null));
+#endif
+
+
             this.InitConfigType();
-
-
             rootVisualElement.Q<Button>("PresetBtn").clickable.clicked += PresetBtn;
             rootVisualElement.Q<Button>("SaveBtn").clickable.clicked += SaveBtn;
             rootVisualElement.Q<Button>("SaveAsPresetBtn").clickable.clicked += SaveAsPresetBtn;
@@ -90,6 +126,7 @@ namespace UTJ.ConfigUtil
                 TypeAndAttrToString, TypeAndAttrToString);
 
             currentTypeInfo = typelist[0];
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
             popup.RegisterValueChangedCallback((value) => {
                 if(currentTypeInfo == value.newValue) { return; }
                 bool res = !isDirty;
@@ -106,6 +143,7 @@ namespace UTJ.ConfigUtil
                     this.ApplyToTypeInfo( value.newValue );
                 }
             });
+#endif
             configType.Add(popup);
             this.ApplyToTypeInfo(currentTypeInfo);
         }
@@ -127,7 +165,10 @@ namespace UTJ.ConfigUtil
             ReflectionUIGenerator generator = new ReflectionUIGenerator(this.SetDataDirty);
             var scrollView = rootVisualElement.Q<ScrollView>("ItemValue");
             scrollView.Clear();
+
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
             generator.Generate(currentValue, scrollView,0);
+#endif
 
             UpdatePresetField();
             this.isDirty = false;
@@ -146,10 +187,18 @@ namespace UTJ.ConfigUtil
 
             if (this.presetList.Count > 0) {
                 presetPopup = new PopupField<PresetData>(this.presetList, 0, PresetDataToString, PresetDataToString);
+
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
                 presetPopup.RegisterValueChangedCallback((val) =>
                 {
                     this.currentPreset = val.newValue;
                 });
+#else
+                presetPopup.OnValueChanged((val) =>
+                {
+                    this.currentPreset = val.newValue;
+                });
+#endif
 
                 currentPreset = this.presetList[0];
                 presetParent.Add(presetPopup);
