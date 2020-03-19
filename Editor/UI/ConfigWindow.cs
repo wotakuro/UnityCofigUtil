@@ -21,6 +21,7 @@ namespace UTJ.ConfigUtil
 
         private object currentValue;
 
+        private PopupField<Utility.TypeAndAttr> configTypePopup;
         private PopupField<PresetData> presetPopup;
         private List<PresetData> presetList = new List<PresetData>();
         private PresetData currentPreset;
@@ -122,30 +123,39 @@ namespace UTJ.ConfigUtil
         {
             if( this.typelist == null || this.typelist.Count <= 0) { return; }
             var configType = rootVisualElement.Q<VisualElement>("ConfigType");
-            var popup = new PopupField<Utility.TypeAndAttr>(this.typelist, 0,
+            configTypePopup = new PopupField<Utility.TypeAndAttr>(this.typelist, 0,
                 TypeAndAttrToString, TypeAndAttrToString);
 
             currentTypeInfo = typelist[0];
 #if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-            popup.RegisterValueChangedCallback((value) => {
-                if(currentTypeInfo == value.newValue) { return; }
-                bool res = !isDirty;
-                if (!res)
-                {
-                    res = EditorUtility.DisplayDialog("Discard Change", "Discard any Chanages?", "ok", "cancel");
-                }
-                if (!res)
-                {
-                    popup.value = value.previousValue;
-                }
-                else
-                {
-                    this.ApplyToTypeInfo( value.newValue );
-                }
+            configTypePopup.RegisterValueChangedCallback((val) => {
+                OnChangedSelectConfig(val);
+            });
+#else
+            configTypePopup.OnValueChanged((val) => {
+                OnChangedSelectConfig(val);
             });
 #endif
-            configType.Add(popup);
+            configType.Add(configTypePopup);
             this.ApplyToTypeInfo(currentTypeInfo);
+        }
+
+        private void OnChangedSelectConfig(ChangeEvent<Utility.TypeAndAttr> val) {
+
+            if (currentTypeInfo == val.newValue) { return; }
+            bool res = !isDirty;
+            if (!res)
+            {
+                res = EditorUtility.DisplayDialog("Discard Change", "Discard any Chanages?", "ok", "cancel");
+            }
+            if (!res)
+            {
+                this.configTypePopup.value = val.previousValue;
+            }
+            else
+            {
+                this.ApplyToTypeInfo(val.newValue);
+            }
         }
 
         private void ApplyToTypeInfo(Utility.TypeAndAttr info)
@@ -165,10 +175,8 @@ namespace UTJ.ConfigUtil
             ReflectionUIGenerator generator = new ReflectionUIGenerator(this.SetDataDirty);
             var scrollView = rootVisualElement.Q<ScrollView>("ItemValue");
             scrollView.Clear();
-
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+            
             generator.Generate(currentValue, scrollView,0);
-#endif
 
             UpdatePresetField();
             this.isDirty = false;
