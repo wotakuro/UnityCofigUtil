@@ -43,6 +43,10 @@ namespace UTJ.ConfigUtil
             {
                 return;
             }
+
+            var scroll = rootVisualElement.Q<ScrollView>("ItemValue");
+            scroll.style.height = this.position.height - 180.0f;
+            lastHeight = this.position.height;
         }
         private void Update()
         {
@@ -68,7 +72,7 @@ namespace UTJ.ConfigUtil
             treeAssset.CloneTree(this.rootVisualElement);
 #else
             string treeAssetPath = "Packages/com.utj.uniconfigutil/Editor/UI/UXML2018/ConfigWindow.uxml";
-
+            lastHeight = -1.0f;
             var treeAssset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(treeAssetPath);
             this.rootVisualElement.Add(treeAssset.CloneTree(null));
 #endif

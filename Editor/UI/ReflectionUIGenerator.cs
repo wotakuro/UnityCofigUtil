@@ -11,6 +11,7 @@ using UnityEditor.UIElements;
 #else
 using UnityEngine.Experimental.UIElements;
 using UnityEditor.Experimental.UIElements;
+using UnityEngine.Experimental.UIElements.StyleEnums;
 #endif
 
 namespace UTJ.ConfigUtil
@@ -112,7 +113,12 @@ namespace UTJ.ConfigUtil
                 Foldout foldout = new Foldout();
                 foldout.text = fieldInfo.Name;
                 var generator = new ReflectionUIGenerator(this.onDirty);
-                generator.Generate( fieldInfo.GetValue(this.target), foldout, this.level + 1);
+                object val = fieldInfo.GetValue(this.target);
+                if( val == null)
+                {
+                    val = System.Activator.CreateInstance(fieldInfo.FieldType);
+                }
+                generator.Generate( val, foldout, this.level + 1);
                 visualElement.Add(foldout);
             }
         }
@@ -171,8 +177,24 @@ namespace UTJ.ConfigUtil
             {
                 val = CreateFieldInstance<T>(name);
             }
-            
+
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
             parent.Add(val);
+#else
+            VisualElement ve = new VisualElement();
+            ve.style.flexDirection = FlexDirection.Row;
+            var label = new Label(name);
+            label.style.width = 150;
+            ve.Add(label);
+            ve.Add(val);
+            val.style.minWidth = 200;
+            if( typeof(T) == typeof(TextField))
+            {
+                val.style.minWidth = 300;
+            }
+            parent.Add(ve);
+#endif
+
             return val as T;
         }
 
