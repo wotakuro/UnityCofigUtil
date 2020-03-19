@@ -3,6 +3,8 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.Networking;
 
+#if !DISABLE_UTJ_CONFIGUTIL || UNITY_EDITOR
+
 namespace UTJ.ConfigUtil
 {
     public class ConfigLoader
@@ -12,18 +14,25 @@ namespace UTJ.ConfigUtil
         {
             return LoadDataFromStreamingAssets<T>();
         }
-        public static T LoadDataFromStreamingAssets<T>()
+        public static bool LoadData(out object result, System.Type type)
+        {
+            return LoadDataFromStreamingAssets(out result, type);
+        }
+        internal static T LoadDataFromStreamingAssets<T>()
         {
             object obj;
             LoadDataFromStreamingAssets(out obj, typeof(T));
             return (T)obj;
         }
 
-        public static bool LoadDataFromStreamingAssets(out object result,System.Type type) 
+        internal static bool LoadDataFromStreamingAssets(out object result,System.Type type) 
         {
             var configUtil = GetConfigAttribute(type);
             if (configUtil == null)
             {
+#if DEBUG
+                Debug.LogError("[ConfigUtil]Cannot found [ConfigUtil] on " + type.FullName);
+#endif
                 result = null;
                 return false;
             }
@@ -37,6 +46,9 @@ namespace UTJ.ConfigUtil
             }
             if( unityWebRequest.isNetworkError || unityWebRequest.isHttpError)
             {
+#if DEBUG
+                Debug.LogError("[ConfigUtil]Cannot found file " + file);
+#endif
                 result = null;
                 return false;
             }
@@ -44,6 +56,9 @@ namespace UTJ.ConfigUtil
 #else
             if (!File.Exists(file))
             {
+#if DEBUG
+                Debug.LogError("[ConfigUtil]Cannot found file " + file);
+#endif
                 result = null;
                 return false;
             }
@@ -73,6 +88,6 @@ namespace UTJ.ConfigUtil
             var customAttr = attrs[0] as ConfigUtilityAttribute;
             return customAttr;
         }
-    }
-    
+    }    
 }
+#endif

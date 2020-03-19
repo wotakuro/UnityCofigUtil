@@ -16,7 +16,7 @@ namespace UTJ.ConfigUtil
     public class ConfigWindow : EditorWindow
     {
 
-        private List<Utility.TypeAndAttr> typelist = new List<Utility.TypeAndAttr>();
+        private List<Utility.TypeAndAttr> typeInfoList;
         private Utility.TypeAndAttr currentTypeInfo;
 
         private object currentValue;
@@ -64,8 +64,15 @@ namespace UTJ.ConfigUtil
 
         private void OnEnable()
         {
-            this.typelist = Utility.GetTypeList(true);
-
+            var tlist = Utility.GetTypeList();
+            this.typeInfoList = new List<Utility.TypeAndAttr>(tlist.Count);
+            foreach( var item in tlist)
+            {
+                if (item.attr.visible)
+                {
+                    typeInfoList.Add(item);
+                }
+            }
 #if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
             string treeAssetPath = "Packages/com.utj.uniconfigutil/Editor/UI/UXML/ConfigWindow.uxml";
             var treeAssset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(treeAssetPath);
@@ -125,12 +132,12 @@ namespace UTJ.ConfigUtil
 
         private void InitConfigType()
         {
-            if( this.typelist == null || this.typelist.Count <= 0) { return; }
+            if( this.typeInfoList == null || this.typeInfoList.Count <= 0) { return; }
             var configType = rootVisualElement.Q<VisualElement>("ConfigType");
-            configTypePopup = new PopupField<Utility.TypeAndAttr>(this.typelist, 0,
+            configTypePopup = new PopupField<Utility.TypeAndAttr>(this.typeInfoList, 0,
                 TypeAndAttrToString, TypeAndAttrToString);
 
-            currentTypeInfo = typelist[0];
+            currentTypeInfo = typeInfoList[0];
 #if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
             configTypePopup.RegisterValueChangedCallback((val) => {
                 OnChangedSelectConfig(val);
@@ -166,7 +173,7 @@ namespace UTJ.ConfigUtil
         {
             this.currentTypeInfo = info;
             object obj = null;
-            bool loadResult = ConfigLoader.LoadDataFromStreamingAssets(out obj, info.type);
+            bool loadResult = ConfigLoader.LoadData(out obj, info.type);
 
             if (!loadResult)
             {

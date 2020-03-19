@@ -35,5 +35,5 @@ Select Tools->Config
 
 ## How to load
 ```
-var config = UTJ.ConfigUtil.ConfigLoader.LoadDatas<ConfigServer>();
+var config = UTJ.ConfigUtil.ConfigLoader.LoadData<ConfigServer>();
 ```
