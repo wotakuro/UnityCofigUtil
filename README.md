@@ -1,6 +1,9 @@
 # UnityCofigUtil
 Simple Configuration Tool
 
+## enviroment
+2019.3 ( exclude WebGL.because this depends on StreamingAssets....)
+
 ## define config data
 ```
 using UTJ.ConfigUtil;
