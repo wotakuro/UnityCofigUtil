@@ -117,9 +117,7 @@ namespace UTJ.ConfigUtil
             }
         }
 
-
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-#else
+        
         private static T CreateFieldWithName<T>(string name,VisualElement parent)
             where T: BindableElement
         {
@@ -197,10 +195,9 @@ namespace UTJ.ConfigUtil
 #endif
                     );
             }
-
+            parent.Add(val);
             return val as T;
         }
-#endif
 
 
         private void SetValue<T>( BaseField<T> uiField,FieldInfo fieldInfo)
