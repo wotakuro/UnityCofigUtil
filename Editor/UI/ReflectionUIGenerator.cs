@@ -201,7 +201,7 @@ namespace UTJ.ConfigUtil
 
         private void SetValue<T>( BaseField<T> uiField,FieldInfo fieldInfo)
         {
-            uiField.value = (T)fieldInfo.GetValue(this.target);
+            uiField.SetValueWithoutNotify( (T)fieldInfo.GetValue(this.target) );
         }
 
         private void RegistEvent<T>(INotifyValueChanged<T> notify,FieldInfo fieldInfo)
