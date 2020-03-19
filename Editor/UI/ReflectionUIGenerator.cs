@@ -117,53 +117,49 @@ namespace UTJ.ConfigUtil
             }
         }
 
+        private static BindableElement CreateFieldInstance<T>(string name)
+            where T : BindableElement
+        {
+            object[] args = null;
+            BindableElement val = null;
+
+
+#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
+            ConstructorInfo constructorInfo = typeof(T).GetConstructor(new System.Type[] { typeof(string) });
+            if (constructorInfo == null)
+            {
+                constructorInfo = typeof(T).GetConstructor(new System.Type[] { typeof(string), typeof(int) });
+                args = new object[] { name, -1 };
+            }
+            else
+            {
+                args = new object[] { name };
+            }
+#else
+            ConstructorInfo constructorInfo = typeof(T).GetConstructor(new System.Type[] {  });
+            if (constructorInfo == null)
+            {
+                constructorInfo = typeof(T).GetConstructor(new System.Type[] {  typeof(int) });
+                args = new object[] { -1 };
+            }
+            else
+            {
+                args = new object[] { };
+            }
+#endif
+
+            val = constructorInfo.Invoke(args) as BindableElement;
+            return val;
+
+        }
         
         private static T CreateFieldWithName<T>(string name,VisualElement parent)
             where T: BindableElement
         {
             BindableElement val = null;
             System.Type t = typeof(T);
-            if (t == typeof(LongField))
-            {
-                val = new LongField(
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-                    name
-#endif
-                    );
-            }
-            else if (t == typeof(IntegerField))
-            {
-                val = new IntegerField(
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-                    name
-#endif
-                    );
-            }
-            else if (t == typeof(FloatField))
-            {
-                val = new FloatField(
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-                    name
-#endif
-                    );
-            }
-            else if (t == typeof(TextField))
-            {
-                val = new TextField(
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-                    name
-#endif
-                    );
-            }
-            else if (t == typeof(ColorField))
-            {
-                val = new ColorField(
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-                    name
-#endif
-                    );
-            }
-            else if (t == typeof(EnumField))
+
+            if (t == typeof(EnumField))
             {
                 val = new EnumField(
 #if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
@@ -171,30 +167,11 @@ namespace UTJ.ConfigUtil
 #endif
                     );
             }
-            else if (t == typeof(Vector2Field))
+            else
             {
-                val = new Vector2Field(
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-                    name
-#endif
-                    );
+                val = CreateFieldInstance<T>(name);
             }
-            else if (t == typeof(Vector3Field))
-            {
-                val = new Vector3Field(
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-                    name
-#endif
-                    );
-            }
-            else if (t == typeof(Vector4Field))
-            {
-                val = new Vector4Field(
-#if UNITY_2019_1_OR_NEWER || UNITY_2019_OR_NEWER
-                    name
-#endif
-                    );
-            }
+            
             parent.Add(val);
             return val as T;
         }
