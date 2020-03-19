@@ -31,7 +31,7 @@ namespace UTJ.ConfigUtil
 
         private void OnEnable()
         {
-            this.typelist = Utility.GetTypeList();
+            this.typelist = Utility.GetTypeList(true);
             string treeAssetPath = "Packages/com.utj.uniconfigutil/Editor/UI/UXML/ConfigWindow.uxml";
             var treeAssset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(treeAssetPath);
             treeAssset.CloneTree(this.rootVisualElement);

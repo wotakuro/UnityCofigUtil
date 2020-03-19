@@ -17,7 +17,7 @@ namespace UTJ.ConfigUtil
                 this.attr = a;
             }
         }
-        internal static List<TypeAndAttr> GetTypeList()
+        internal static List<TypeAndAttr> GetTypeList(bool isVisibleOnly)
         {
             List<TypeAndAttr> list = new List<TypeAndAttr>();
             var domain = System.AppDomain.CurrentDomain;
@@ -28,6 +28,7 @@ namespace UTJ.ConfigUtil
                 {
                     var customAttr = ConfigLoader.GetConfigAttribute(type);
                     if(customAttr == null) { continue; }
+                    if(isVisibleOnly && !customAttr.visible) { continue; }
                     list.Add(new TypeAndAttr(type, customAttr));
                 }
             }
