@@ -7,6 +7,11 @@ namespace UTJ.ConfigUtil
 {
     public class ConfigLoader
     {
+
+        public static T LoadData<T>()
+        {
+            return LoadDataFromStreamingAssets<T>();
+        }
         public static T LoadDataFromStreamingAssets<T>()
         {
             object obj;
@@ -24,10 +29,11 @@ namespace UTJ.ConfigUtil
             }
             string file = GetConfigDataPath(configUtil);
 #if UNITY_ANDROID && !UNITY_EDITOR
-            UnityWebRequest unityWebRequest = new UnityWebRequest(file);
+            UnityWebRequest unityWebRequest = UnityWebRequest.Get(file);
             unityWebRequest.SendWebRequest();
             while (!unityWebRequest.isDone)
             {
+                System.Threading.Thread.Sleep(1);
             }
             if( unityWebRequest.isNetworkError || unityWebRequest.isHttpError)
             {

@@ -32,5 +32,5 @@ Select Tools->Config
 
 ## How to load
 ```
-var config = UTJ.ConfigUtil.ConfigLoader.LoadDataFromStreamingAssets<ConfigServer>();
+var config = UTJ.ConfigUtil.ConfigLoader.LoadDatas<ConfigServer>();
 ```
