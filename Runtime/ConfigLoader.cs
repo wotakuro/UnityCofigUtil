@@ -57,7 +57,12 @@ namespace UTJ.ConfigUtil
             if (!File.Exists(file))
             {
 #if DEBUG
-                Debug.LogError("[ConfigUtil]Cannot found file " + file);
+#if UNITY_EDITOR
+                if( UnityEditor.EditorApplication.isPlaying)
+#endif
+                {
+                    Debug.LogError("[ConfigUtil]Cannot found file " + file);
+                }
 #endif
                 result = null;
                 return false;
