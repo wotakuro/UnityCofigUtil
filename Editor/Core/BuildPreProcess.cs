@@ -31,6 +31,11 @@ namespace UTJ.ConfigUtil
         {
             object obj = null;
             ConfigLoader.LoadData(out obj,typeAndAttr.type);
+            if( obj == null)
+            {
+                obj = System.Activator.CreateInstance(typeAndAttr.type);
+            }
+
             IConfigUpdateOnBuild config = obj as IConfigUpdateOnBuild;
             config.OnPreprocessBuild();
             Utility.SaveDataToStreamingAssets(config);
