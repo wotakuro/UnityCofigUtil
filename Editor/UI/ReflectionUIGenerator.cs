@@ -57,9 +57,21 @@ namespace UTJ.ConfigUtil
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
             }
+            else if (type == typeof(bool))
+            {
+                var uiField = CreateFieldWithName<Toggle>(name, visualElement);
+                RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
+            }
             else if (type == typeof(float))
             {
                 var uiField = CreateFieldWithName<FloatField>(name, visualElement);
+                RegistEvent(uiField, fieldInfo);
+                SetValue(uiField, fieldInfo);
+            }
+            else if (type == typeof(double))
+            {
+                var uiField = CreateFieldWithName<DoubleField>(name, visualElement);
                 RegistEvent(uiField, fieldInfo);
                 SetValue(uiField, fieldInfo);
             }
